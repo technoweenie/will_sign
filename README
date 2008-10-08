@@ -1,0 +1,55 @@
+will_sign
+=========
+
+Create time-based HMAC hashes from URLs.
+
+USAGE
+=====
+
+  # not really Rails-specific, works with POROs
+  class FooController < ApplicationController
+    include WillSign
+  
+  protected
+    def sign_secret
+      :monkey # this should be something unique and special.
+    end
+
+  public
+    def index
+      url  = "/foo/bar"
+      hash = sign_url(url)
+      redirect_to "#{url}?token=#{hash}"
+    end
+
+    def show
+      url  = request.request_uri.split("?").first # "/foo/bar"
+      hash = params[:token]
+      if signed_url?(url, hash)
+        ...
+      else
+        raise "Token expired"
+      end
+    end
+  end
+
+The default expiry for urls is 300 seconds (5 minutes).  You can set a custom
+expiry like this:
+
+  sign_url("foo/bar", 120) # 2 minutes
+
+Or...
+
+  WillSign.default_expiry = 180
+  sign_url("foo/bar") # 3 minutes
+
+CREDITS
+=======
+
+Thanks to Digisynd for funding this plugin, and TV for insight in how to properly
+hash URLs.
+
+TODO
+====
+
+gem spec...
